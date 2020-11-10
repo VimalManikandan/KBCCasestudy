@@ -1,5 +1,22 @@
 package com.stackroute.keepnote.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.stackroute.keepnote.exception.UserUnAuthorized;
+import com.stackroute.keepnote.model.Responce;
+import com.stackroute.keepnote.model.User;
 import com.stackroute.keepnote.service.UserService;
 
 /*
@@ -12,6 +29,7 @@ import com.stackroute.keepnote.service.UserService;
  * Annotate class with @SessionAttributes this  annotation is used to store the model attribute in the session.
  */
 
+@RestController
 public class UserAuthenticationController {
 
 	/*
@@ -19,11 +37,13 @@ public class UserAuthenticationController {
 	 * autowiring) Please note that we should not create any object using the new
 	 * keyword
 	 */
+	UserService userService;
 
+	@Autowired
 	public UserAuthenticationController(UserService userService) {
-
+		this.userService = userService;
 	}
-
+	
 	/*
 	 * Define a handler method which will authenticate a user by reading the
 	 * Serialized user object from request body containing the userId and password
@@ -36,7 +56,37 @@ public class UserAuthenticationController {
 	 * 
 	 * This handler method should map to the URL "/login" using HTTP POST method
 	 */
+	
+	@RequestMapping(value="/login"    ,method = RequestMethod.POST)
+	public ResponseEntity<Responce> loginUser(@RequestBody User user,HttpServletRequest request) throws UserUnAuthorized {
+		Responce responce=new Responce();
+		try {
+			if(userService.validateUser(user.getUserId(), user.getUserPassword())) {
+			List<String> usersList = (List<String>) request.getSession().getAttribute("Logged_users");
+		       if (usersList == null) {
+		        	usersList = new ArrayList<>();
+		            request.getSession().setAttribute("Logged_users", usersList);
+		        }
+		        usersList.add(user.getUserId());
+		        request.getSession().setAttribute("Logged_users", usersList);
+		        responce.setMessage("Logged in");
+		        responce.setStatus(HttpStatus.OK.value());
+			}
+			else {
+				responce.setMessage("Login Failed");
+				responce.setStatus(HttpStatus.UNAUTHORIZED.value());
+			}
+			
+		} catch (UserUnAuthorized e) {
+			throw e;
+		}
+		return new ResponseEntity<Responce>(responce,HttpStatus.OK);
+		
+		
+	}
 
+	
+	
 	/*
 	 * Define a handler method which will perform logout. Post logout, the user
 	 * session is to be destroyed. This handler method should return any one of the
@@ -44,6 +94,17 @@ public class UserAuthenticationController {
 	 * successful 2. 400(BAD REQUEST) - If logout has failed
 	 * 
 	 * This handler method should map to the URL "/logout" using HTTP GET method
+	 * 
 	 */
+	@RequestMapping(value = "/logout",method = RequestMethod.GET)
+	public boolean logoutUser(HttpSession session) {
+		try{
+			session.invalidate();
+			return true;
+		}
+		catch(Exception e) {
+			return false;
+		}	
+	}
 
 }

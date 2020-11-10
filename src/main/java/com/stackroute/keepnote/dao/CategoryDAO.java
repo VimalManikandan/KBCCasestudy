@@ -2,7 +2,9 @@ package com.stackroute.keepnote.dao;
 
 import java.util.List;
 
+import com.stackroute.keepnote.exception.CategoryAlreadyExistException;
 import com.stackroute.keepnote.exception.CategoryNotFoundException;
+import com.stackroute.keepnote.exception.UserNotFoundException;
 import com.stackroute.keepnote.model.Category;
 
 public interface CategoryDAO {
@@ -12,13 +14,13 @@ public interface CategoryDAO {
 	 * corresponding Impl classes
 	 */
 
-	public boolean createCategory(Category category);
+	public Category createCategory(Category category) throws CategoryAlreadyExistException;
 
-	public boolean deleteCategory(int noteId);
+	public boolean deleteCategory(int noteId) throws CategoryNotFoundException;
 
-	public boolean updateCategory(Category category);
+	public boolean updateCategory(Category category) throws CategoryNotFoundException;
 
 	public Category getCategoryById(int categoryId) throws CategoryNotFoundException;
 
-	public List<Category> getAllCategoryByUserId(String userId);
+	public List<Category> getAllCategoryByUserId(String userId) throws UserNotFoundException;
 }

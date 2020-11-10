@@ -1,12 +1,15 @@
 package com.stackroute.keepnote.test.dao;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import java.util.Date;
 
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
 
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -20,7 +23,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 import org.springframework.test.context.web.WebAppConfiguration;
-
 import com.stackroute.keepnote.config.ApplicationContextConfig;
 import com.stackroute.keepnote.dao.UserDAO;
 import com.stackroute.keepnote.dao.UserDaoImpl;
@@ -34,30 +36,35 @@ import com.stackroute.keepnote.model.User;
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, TransactionalTestExecutionListener.class })
 public class UserDAOImplTest {
 
+	 
+	//private SessionFactory sessionFactory;
+	
 	@Autowired
-	private SessionFactory sessionFactory;
+	private EntityManager entityManager;
+	
 	private UserDAO userDAO;
 	private User user;
 
 	@Before
 	public void setUp() throws Exception {
 
-		userDAO = new UserDaoImpl(sessionFactory);
+		//userDAO = new UserDaoImpl(sessionFactory);
+		userDAO = new UserDaoImpl(entityManager);
 		user = new User("Jhon123", "Jhon Simon", "123456", "9872367384", new Date());
-		Query query = sessionFactory.getCurrentSession().createQuery("DELETE from User");
+		Query query = entityManager.unwrap(Session.class).createQuery("DELETE from User");
 		query.executeUpdate();
 	}
 
 	@After
 	public void tearDown() throws Exception {
 
-		Query query = sessionFactory.getCurrentSession().createQuery("DELETE from User");
+		Query query = entityManager.unwrap(Session.class).createQuery("DELETE from User");
 		query.executeUpdate();
 	}
 
 	@Test
 	@Rollback(true)
-	public void testRegisterUserSuccess() {
+	public void testRegisterUserSuccess() throws Exception {
 		userDAO.registerUser(user);
 		User fetchedUser = userDAO.getUserById("Jhon123");
 		assertEquals(user, fetchedUser);
@@ -66,7 +73,7 @@ public class UserDAOImplTest {
 
 	@Test
 	@Rollback(true)
-	public void testRegisterUserFailure() {
+	public void testRegisterUserFailure() throws Exception {
 		userDAO.registerUser(user);
 		User fetchedUser = userDAO.getUserById("Jhon123");
 		assertNotEquals("George3706", fetchedUser.getUserId());
@@ -74,7 +81,7 @@ public class UserDAOImplTest {
 	}
 
 	@Test
-	public void testUpdateUserSuccess() {
+	public void testUpdateUserSuccess() throws Exception {
 		userDAO.registerUser(user);
 		User fetchedUser = userDAO.getUserById("Jhon123");
 		fetchedUser.setUserMobile("77777777");
@@ -85,7 +92,7 @@ public class UserDAOImplTest {
 	}
 
 	@Test
-	public void testGetUserByIdSuccess() {
+	public void testGetUserByIdSuccess() throws Exception {
 
 		userDAO.registerUser(user);
 		User fetchedUser = userDAO.getUserById("Jhon123");
@@ -94,7 +101,7 @@ public class UserDAOImplTest {
 	}
 
 	@Test
-	public void testGetUserByIdFailure() {
+	public void testGetUserByIdFailure() throws Exception {
 
 		userDAO.registerUser(user);
 		User fetchedUser = userDAO.getUserById("Jhon123");
@@ -103,7 +110,7 @@ public class UserDAOImplTest {
 	}
 
 	@Test
-	public void testValidateUserSuccess() throws UserNotFoundException {
+	public void testValidateUserSuccess() throws Exception {
 
 		userDAO.registerUser(user);
 		boolean status = userDAO.validateUser("Jhon123", "123456");
@@ -112,7 +119,7 @@ public class UserDAOImplTest {
 	}
 
 	@Test(expected = UserNotFoundException.class)
-	public void testValidateUserFailure() throws UserNotFoundException {
+	public void testValidateUserFailure() throws Exception {
 
 		userDAO.registerUser(user);
 		@SuppressWarnings("unused")
@@ -121,7 +128,7 @@ public class UserDAOImplTest {
 	}
 
 	@Test
-	public void testDeleteUserSuccess() {
+	public void testDeleteUserSuccess() throws Exception {
 
 		userDAO.registerUser(user);
 		boolean status = userDAO.deleteUser("Jhon123");
@@ -130,7 +137,7 @@ public class UserDAOImplTest {
 	}
 
 	@Test
-	public void testDeleteUserFailure() {
+	public void testDeleteUserFailure() throws Exception {
 		userDAO.registerUser(user);
 		boolean status = userDAO.deleteUser("George3706");
 		assertEquals(false, status);

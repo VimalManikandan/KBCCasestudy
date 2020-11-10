@@ -96,17 +96,15 @@ public class NoteControllerTest {
 		reminder.setReminderCreationDate(new Date());
 
 		// creating Note Object
-		note = new Note(1, "Testing for Step-3", "Complete testing for step-3", "Active", new Date(), category,
-				reminder, user.getUserId());
+		note= new Note(1, "Testing for Step-3", "note", "Complete testing for step-3", "Active", new Date(), category, reminder, "jobb");
 
 		allNotesByUserId.add(note);
 
-		note = new Note(2, "Testing for Step-4", "Complete testing for step-4", "Active", new Date(), category,
-				reminder, user.getUserId());
+		note = new Note(2, "Testing for Step-3", "note", "Complete testing for step-3", "Active", new Date(), category, reminder, "jobb");
+		
 		allNotesByUserId.add(note);
 
-		note = new Note(3, "Testing for Step-5", "Complete testing for step-5", "Active", new Date(), category,
-				reminder, user.getUserId());
+		note = new Note(3, "Testing for Step-3", "note", "Complete testing for step-3", "Active", new Date(), category, reminder, "jobb");
 		allNotesByUserId.add(note);
 
 	}
@@ -175,9 +173,8 @@ public class NoteControllerTest {
 	@Test
 
 	public void testUpdateNoteSuccess() throws Exception {
-		note = new Note(1, "Testing for Step-3", "Complete testing for step-3", "Active", new Date(), category,
-				reminder, user.getUserId());
-		note.setNoteContent("updating note card");
+		note = new Note(1, "Testing for Step-3", "note", "Complete testing for step-3", "Active", new Date(), category, reminder, "jobb");
+		note.setContent("updating note card");
 		when(noteService.updateNote(any(), eq(1))).thenReturn(note);
 		mockMvc.perform(put("/note/{id}", note.getNoteId()).contentType(MediaType.APPLICATION_JSON)
 				.content(asJsonString(note)).session(session)).andExpect(status().isOk()).andDo(print());
@@ -186,7 +183,7 @@ public class NoteControllerTest {
 
 	@Test
 	public void testUpdateNoteFailure() throws ReminderNotFoundException, Exception {
-		note.setNoteContent("updating note card");
+		note.setContent("updating note card");
 		when(noteService.updateNote(note, note.getNoteId())).thenReturn(null);
 		mockMvc.perform(put("/note/{id}", 1).contentType(MediaType.APPLICATION_JSON).content(asJsonString(note))
 				.session(session)).andExpect(status().isNotFound()).andDo(print());
@@ -195,7 +192,7 @@ public class NoteControllerTest {
 	@Test
 	public void testUpdateNoteFailureWithoutSession() throws ReminderNotFoundException, Exception {
 		// when(noteService.getNoteById(5)).thenReturn(null);
-		note.setNoteContent("updating note card");
+		note.setContent("updating note card");
 		when(noteService.updateNote(note, note.getNoteId())).thenReturn(note);
 		mockMvc.perform(put("/note/{id}", 1).contentType(MediaType.APPLICATION_JSON).content(asJsonString(note)))
 				.andExpect(status().isUnauthorized()).andDo(print());

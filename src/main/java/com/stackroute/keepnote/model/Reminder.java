@@ -3,6 +3,18 @@ package com.stackroute.keepnote.model;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /*
  * The class "Reminder" will be acting as the data model for the Reminder Table in the database. 
  * Please note that this class is annotated with @Entity annotation. 
@@ -10,7 +22,8 @@ import java.util.List;
  * If it finds any, then it will begin the process of looking through that particular 
  * Java object to recreate it as a table in your database.
  */
-
+@Entity
+@Table(name="reminder")
 public class Reminder {
 	/*
 	 * This class should have seven fields
@@ -23,50 +36,139 @@ public class Reminder {
 	 * always initialized with the system date. annotate notes field with @OneToMany
 	 * and @JsonIgnore
 	 */
+	
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(name="reminderId")
+	private int reminderId;
+	
+	@Column(name="reminderName")
+	private String reminderName;
+	
+	@Column(name="reminderDescription")
+	private String reminderDescription;
+	
+	@Column(name="reminderType")
+	private String reminderType;
+	
+	@Column(name="reminderCreatedBy")
+	private String reminderCreatedBy;
+	
+	@Column(name="reminderCreationDate")
+	private Date reminderCreationDate;
+	
+	@JsonIgnore
+	@OneToMany(mappedBy = "reminder",fetch = FetchType.EAGER,//cascade=CascadeType.ALL
+			cascade= {CascadeType.PERSIST, CascadeType.MERGE,
+					 CascadeType.DETACH, CascadeType.REFRESH})
+	private List<Note> notes;
+	
 
 	public Reminder() {
 
 	}
 
-	public Reminder(int Int, String string, String string1, String string2, String string3, List<Note> list,
-			Date date) {
+
+	public Reminder(int reminderId, String reminderName, String reminderDescription, String reminderType,
+			String reminderCreatedBy, Date reminderCreationDate, List<Note> notes) {
+		super();
+		this.reminderId = reminderId;
+		this.reminderName = reminderName;
+		this.reminderDescription = reminderDescription;
+		this.reminderType = reminderType;
+		this.reminderCreatedBy = reminderCreatedBy;
+		this.reminderCreationDate = reminderCreationDate;
+		this.notes = notes;
 	}
+
 
 	public int getReminderId() {
-		return 0;
-
+		return reminderId;
 	}
 
-	public void setReminderId(int Int) {
 
+	public void setReminderId(int reminderId) {
+		this.reminderId = reminderId;
 	}
 
-	public void setReminderName(String string) {
 
+	public String getReminderName() {
+		return reminderName;
 	}
+
+
+	public void setReminderName(String reminderName) {
+		this.reminderName = reminderName;
+	}
+
 
 	public String getReminderDescription() {
-		return null;
+		return reminderDescription;
 	}
 
-	public void setReminderDescription(String string) {
 
+	public void setReminderDescription(String reminderDescription) {
+		this.reminderDescription = reminderDescription;
 	}
 
-	public void setReminderType(String string) {
 
+	public String getReminderType() {
+		return reminderType;
 	}
 
-	public void setReminderCreationDate(Date date) {
 
+	public void setReminderType(String reminderType) {
+		this.reminderType = reminderType;
 	}
 
-	public void setReminderCreatedBy(String string) {
 
+	public String getReminderCreatedBy() {
+		return reminderCreatedBy;
 	}
 
-	public void setNotes(List<Note> list) {
 
+	public void setReminderCreatedBy(String reminderCreatedBy) {
+		this.reminderCreatedBy = reminderCreatedBy;
 	}
 
+
+	public Date getReminderCreationDate() {
+		return reminderCreationDate;
+	}
+
+
+	public void setReminderCreationDate(Date reminderCreationDate) {
+		this.reminderCreationDate = reminderCreationDate;
+	}
+
+
+	public List<Note> getNotes() {
+		return notes;
+	}
+
+
+	public void setNotes(List<Note> notes) {
+		this.notes = notes;
+	}
+	
+	public void addNote(Note note) {
+		notes.add(note);
+		note.setReminder(this);
+	}
+	
+	
+	public void removeNote(Note note) {
+		notes.remove(note);
+		note.setReminder(null);
+	}
+
+
+	@Override
+	public String toString() {
+		return "Reminder [reminderId=" + reminderId + ", reminderName=" + reminderName + ", reminderDescription="
+				+ reminderDescription + ", reminderType=" + reminderType + ", reminderCreatedBy=" + reminderCreatedBy
+				+ ", reminderCreationDate=" + reminderCreationDate + ", notes=" + notes + "]";
+	}	
+	
+	
 }

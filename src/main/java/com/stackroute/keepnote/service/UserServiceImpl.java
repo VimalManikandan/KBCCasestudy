@@ -1,7 +1,12 @@
 package com.stackroute.keepnote.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.stackroute.keepnote.dao.UserDAO;
 import com.stackroute.keepnote.exception.UserAlreadyExistException;
 import com.stackroute.keepnote.exception.UserNotFoundException;
+import com.stackroute.keepnote.exception.UserUnAuthorized;
 import com.stackroute.keepnote.model.User;
 
 /*
@@ -14,6 +19,7 @@ import com.stackroute.keepnote.model.User;
 * future.
 * */
 
+@Service
 public class UserServiceImpl implements UserService {
 
 	/*
@@ -24,19 +30,28 @@ public class UserServiceImpl implements UserService {
 
 	/*
 	 * This method should be used to save a new user.
+	 * 
 	 */
+	UserDAO userDAO;
 
-	public boolean registerUser(User user) throws UserAlreadyExistException {
-		return false;
+	@Autowired
+	public UserServiceImpl(UserDAO userDAO) {
+		this.userDAO = userDAO;
+	}
 
+	public boolean registerUser(User user) throws Exception {
+		return userDAO.registerUser(user);
 	}
 
 	/*
 	 * This method should be used to update a existing user.
 	 */
 
-	public User updateUser(User user, String userId) throws Exception {
-		return user;
+	public User updateUser(User user, String userId) throws UserNotFoundException {
+		if (userDAO.updateUser(user))
+			return userDAO.getUserById(userId);
+		else
+			return null;
 
 	}
 
@@ -45,23 +60,20 @@ public class UserServiceImpl implements UserService {
 	 */
 
 	public User getUserById(String UserId) throws UserNotFoundException {
-		return null;
-
+		return userDAO.getUserById(UserId);
 	}
 
 	/*
 	 * This method should be used to validate a user using userId and password.
 	 */
 
-	public boolean validateUser(String userId, String password) throws UserNotFoundException {
-		return false;
-
+	public boolean validateUser(String userId, String password) throws UserUnAuthorized {
+		return userDAO.validateUser(userId, password);
 	}
 
 	/* This method should be used to delete an existing user. */
-	public boolean deleteUser(String UserId) {
-		return false;
-
+	public boolean deleteUser(String UserId) throws UserNotFoundException {
+		return userDAO.deleteUser(UserId);
 	}
 
 }

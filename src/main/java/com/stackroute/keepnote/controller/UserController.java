@@ -1,5 +1,27 @@
 package com.stackroute.keepnote.controller;
 
+import java.lang.annotation.Annotation;
+import java.util.Collections;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.stackroute.keepnote.exception.UserAlreadyExistException;
+import com.stackroute.keepnote.exception.UserNotFoundException;
+import com.stackroute.keepnote.exception.UserUnAuthorized;
+import com.stackroute.keepnote.model.Responce;
+import com.stackroute.keepnote.model.User;
 import com.stackroute.keepnote.service.UserService;
 
 /*
@@ -11,6 +33,8 @@ import com.stackroute.keepnote.service.UserService;
  * is equivalent to using @Controller and @ResposeBody annotation
  */
 
+@RestController
+@RequestMapping("/user")
 public class UserController {
 
 	/*
@@ -19,7 +43,11 @@ public class UserController {
 	 * keyword
 	 */
 
+	private UserService userService;
+
+	@Autowired
 	public UserController(UserService userService) {
+		this.userService = userService;
 	}
 
 	/*
@@ -37,6 +65,20 @@ public class UserController {
 	 * This handler method should map to the URL "/user/register" using HTTP POST
 	 * method
 	 */
+	@RequestMapping(value = "/register", method = RequestMethod.POST)
+	public ResponseEntity<Responce> registerUser(@RequestBody User user) throws Exception {
+
+		Responce responce = new Responce();
+
+		try {
+			userService.registerUser(user);
+			responce.setMessage("CREATED");
+			responce.setStatus(HttpStatus.CREATED.value());
+		} catch (Exception e) {
+			throw e;
+		}
+		return new ResponseEntity<Responce>(responce, HttpStatus.OK);
+	}
 
 	/*
 	 * Define a handler method which will update a specific user by reading the
@@ -49,6 +91,26 @@ public class UserController {
 	 * 
 	 * This handler method should map to the URL "/user/{id}" using HTTP PUT method.
 	 */
+
+	@RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+	public ResponseEntity<User> updateUser(@RequestBody User user, @PathVariable String id,
+			HttpServletRequest request) throws Exception {
+
+		List<String> usersList = (List<String>) request.getSession().getAttribute("Logged_users");
+		int rslt = (usersList != null) ? Collections.frequency(usersList, id) : 0;
+		if (rslt == 0) {
+			throw new UserUnAuthorized("UnAuthorized");
+		}
+
+		User user1=null;
+		try {
+			user1=userService.updateUser(user1, id);	
+			return new ResponseEntity<User>(user1, HttpStatus.OK);
+			
+		} catch (UserNotFoundException e) {
+			throw e;
+		}
+	}
 
 	/*
 	 * Define a handler method which will delete a user from a database.
@@ -63,6 +125,28 @@ public class UserController {
 	 * method" where "id" should be replaced by a valid userId without {}
 	 */
 
+	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
+	public ResponseEntity<Responce> deleteUser(@PathVariable String id, HttpServletRequest request)
+			throws UserNotFoundException, UserUnAuthorized {
+		List<String> usersList = (List<String>) request.getSession().getAttribute("Logged_users");
+		int rslt = (usersList != null) ? Collections.frequency(usersList, id) : 0;
+		if (rslt == 0) {
+			throw new UserUnAuthorized("UnAuthorized");
+		}
+
+		Responce responce = new Responce();
+		try {
+			userService.deleteUser(id);
+			responce.setMessage("OK");
+			responce.setStatus(HttpStatus.OK.value());
+
+		} catch (UserNotFoundException e) {
+			throw e;
+		}
+		return new ResponseEntity<Responce>(responce, HttpStatus.OK);
+
+	}
+
 	/*
 	 * Define a handler method which will show details of a specific user handle
 	 * UserNotFoundException as well. This handler method should return any one of
@@ -73,5 +157,24 @@ public class UserController {
 	 * using HTTP GET method where "id" should be replaced by a valid userId without
 	 * {}
 	 */
+
+	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
+	public ResponseEntity<User> getUser(@PathVariable String id,HttpSession session)
+			throws UserNotFoundException, UserUnAuthorized {
+		List<String> usersList = (List<String>) session.getAttribute("Logged_users");
+		int rslt = (usersList != null) ? Collections.frequency(usersList, id) : 0;
+		if (rslt == 0) {
+			throw new UserUnAuthorized("UnAuthorized");
+		}
+		User user=null;
+		Responce responce = new Responce();
+		try {
+			user=userService.getUserById(id);			
+		} catch (UserNotFoundException e) {
+			throw e;
+		}
+		return new ResponseEntity<User>(user, HttpStatus.OK);
+
+	}
 
 }
