@@ -164,7 +164,7 @@ public class NoteController {
 	 */
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<Note> updateNote(@RequestBody Note note, @PathVariable int id,
+	public ResponseEntity<Responce> updateNote(@RequestBody Note note, @PathVariable int id,
 			HttpServletRequest request) throws Exception {
 
 		List<String> usersList = (List<String>) request.getSession().getAttribute("Logged_users");
@@ -177,13 +177,17 @@ public class NoteController {
 		Reminder reminder = new Reminder(20, "Email", "Email reminder", "EmailType", "Jhon123", new Date(), null);
 		note = new Note(1, "Testing-1", "Testing Service Xyzzzzzzz", "Active", "abc", new Date(), category, reminder, "Jhon123");
 		
-		Note n1=null;
+		
+		Responce responce = new Responce();
 		try {
-			n1=noteService.updateNote(note, id);
-			if (n1 != null) {
-				return new ResponseEntity<Note>(n1, HttpStatus.OK);
+			if (noteService.updateNote(note, id)) {
+				responce.setMessage("OK");
+				responce.setStatus(HttpStatus.OK.value());
+				return new ResponseEntity<Responce>(responce, HttpStatus.OK);
 			} else {
-				return new ResponseEntity<Note>(n1, HttpStatus.BAD_REQUEST);
+				responce.setMessage("OK");
+				responce.setStatus(HttpStatus.OK.value());
+				return new ResponseEntity<Responce>(responce, HttpStatus.BAD_REQUEST);
 			}
 		} catch (NoteNotFoundException e) {
 			throw e;

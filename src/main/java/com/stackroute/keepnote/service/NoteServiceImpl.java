@@ -101,7 +101,7 @@ public class NoteServiceImpl implements NoteService {
 	 * This method should be used to update a existing note.
 	 */
 
-	public Note updateNote(Note note, int id) throws ReminderNotFoundException, NoteNotFoundException, Exception {
+	public boolean  updateNote(Note note, int id) throws ReminderNotFoundException, NoteNotFoundException, Exception {
 		Note n1=noteDAO.getNoteById(id);
 		if(note.getCategory()==null) {
 			throw new CategoryNotFoundException("Category Not Found");
@@ -120,9 +120,9 @@ public class NoteServiceImpl implements NoteService {
 		}
 		else {
 			if(noteDAO.UpdateNote(note))
-				return noteDAO.getNoteById(note.getNoteId());
+				return true;
 			else
-				return null;
+				return false;
 		}
 	}
 

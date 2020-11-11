@@ -177,8 +177,8 @@ public class NoteServiceImplTest {
 		when(categoryDAO.getCategoryById(1)).thenReturn(category);
 		when(noteDAO.getNoteById(1)).thenReturn(note);
 		when(noteDAO.UpdateNote(note)).thenReturn(true);
-		Note updatedNote = noteServiceImpl.updateNote(note, 1);
-		assertEquals("Testing updateNote()", updatedNote.getContent());
+		boolean rslt = noteServiceImpl.updateNote(note, 1);
+		assertEquals(true, rslt);
 		verify(categoryDAO, times(1)).getCategoryById(category.getCategoryId());
 		verify(noteDAO, times(1)).getNoteById(1);
 		verify(noteDAO, times(1)).UpdateNote(note);
@@ -194,8 +194,8 @@ public class NoteServiceImplTest {
 		when(categoryDAO.getCategoryById(1)).thenReturn(category);
 		when(noteDAO.getNoteById(1)).thenReturn(note);
 		when(noteDAO.UpdateNote(note)).thenReturn(true);
-		Note updatedNote = noteServiceImpl.updateNote(note, 1);
-		assertEquals("Testing updateNote()", updatedNote.getContent());
+		boolean rslt = noteServiceImpl.updateNote(note, 1);
+		assertEquals(true, rslt);
 		verify(categoryDAO, times(1)).getCategoryById(category.getCategoryId());
 		verify(noteDAO, times(1)).getNoteById(1);
 		verify(noteDAO, times(1)).UpdateNote(note);
@@ -211,8 +211,8 @@ public class NoteServiceImplTest {
 		when(categoryDAO.getCategoryById(1)).thenReturn(null);
 		when(noteDAO.getNoteById(1)).thenReturn(note);
 		when(noteDAO.UpdateNote(note)).thenReturn(true);
-		Note updatedNote = noteServiceImpl.updateNote(note, 1);
-		assertEquals("Testing updateNote()", updatedNote.getContent());
+		boolean rslt = noteServiceImpl.updateNote(note, 1);
+		assertEquals(true, rslt);
 		verify(noteDAO, times(1)).getNoteById(1);
 		verify(noteDAO, times(1)).UpdateNote(note);
 		verify(reminderDAO, times(1)).getReminderById(1);
@@ -229,8 +229,8 @@ public class NoteServiceImplTest {
 		when(categoryDAO.getCategoryById(1)).thenReturn(null);
 		when(noteDAO.getNoteById(1)).thenReturn(note);
 		when(noteDAO.UpdateNote(note)).thenReturn(true);
-		Note updatedNote = noteServiceImpl.updateNote(note, 1);
-		assertEquals("Testing updateNote()", updatedNote.getContent());
+		boolean rslt = noteServiceImpl.updateNote(note, 1);
+		assertEquals(true, rslt);
 		verify(noteDAO, times(1)).getNoteById(1);
 		verify(noteDAO, times(1)).UpdateNote(note);
 
@@ -245,7 +245,7 @@ public class NoteServiceImplTest {
 		when(noteDAO.getNoteById(1)).thenThrow(NoteNotFoundException.class);
 		when(noteDAO.UpdateNote(note)).thenReturn(true);
 		@SuppressWarnings("unused")
-		Note updatedNote = noteServiceImpl.updateNote(note, 1);
+		boolean rslt = noteServiceImpl.updateNote(note, 1);
 
 	}
 

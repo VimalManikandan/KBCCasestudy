@@ -24,6 +24,6 @@ public interface NoteService {
 
 	public Note getNoteById(int noteId) throws NoteNotFoundException;
 
-	public Note updateNote(Note note, int id)
+	public boolean updateNote(Note note, int id)
 			throws ReminderNotFoundException, NoteNotFoundException, CategoryNotFoundException, Exception;
 }

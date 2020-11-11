@@ -175,7 +175,7 @@ public class NoteControllerTest {
 	public void testUpdateNoteSuccess() throws Exception {
 		note = new Note(1, "Testing for Step-3", "note", "Complete testing for step-3", "Active", new Date(), category, reminder, "jobb");
 		note.setContent("updating note card");
-		when(noteService.updateNote(any(), eq(1))).thenReturn(note);
+		when(noteService.updateNote(any(), eq(1))).thenReturn(true);
 		mockMvc.perform(put("/note/{id}", note.getNoteId()).contentType(MediaType.APPLICATION_JSON)
 				.content(asJsonString(note)).session(session)).andExpect(status().isOk()).andDo(print());
 
@@ -193,7 +193,7 @@ public class NoteControllerTest {
 	public void testUpdateNoteFailureWithoutSession() throws ReminderNotFoundException, Exception {
 		// when(noteService.getNoteById(5)).thenReturn(null);
 		note.setContent("updating note card");
-		when(noteService.updateNote(note, note.getNoteId())).thenReturn(note);
+		when(noteService.updateNote(note, note.getNoteId())).thenReturn(false);
 		mockMvc.perform(put("/note/{id}", 1).contentType(MediaType.APPLICATION_JSON).content(asJsonString(note)))
 				.andExpect(status().isUnauthorized()).andDo(print());
 	}
