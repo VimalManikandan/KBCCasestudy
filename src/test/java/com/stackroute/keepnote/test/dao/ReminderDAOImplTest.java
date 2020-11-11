@@ -5,9 +5,11 @@ import static org.junit.Assert.*;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
 
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -25,7 +27,9 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import com.stackroute.keepnote.config.ApplicationContextConfig;
 import com.stackroute.keepnote.dao.ReminderDAO;
 import com.stackroute.keepnote.dao.ReminderDAOImpl;
+import com.stackroute.keepnote.exception.ReminderAlreadyExistException;
 import com.stackroute.keepnote.exception.ReminderNotFoundException;
+import com.stackroute.keepnote.exception.UserNotFoundException;
 import com.stackroute.keepnote.model.Reminder;
 
 @RunWith(SpringRunner.class)
@@ -36,25 +40,27 @@ import com.stackroute.keepnote.model.Reminder;
 public class ReminderDAOImplTest {
 
 	@Autowired
-	private SessionFactory sessionFactory;
+	//private SessionFactory sessionFactory;
+	private EntityManager entityManager;
 	private ReminderDAO reminderDAO;
 	private Reminder reminder;
 
 	@Before
 	public void setUp() throws Exception {
-		reminderDAO = new ReminderDAOImpl(sessionFactory);
-		reminder = new Reminder(1, "Email", "Email reminder", "notification", "Jhon123", null, new Date());
+		reminderDAO = new ReminderDAOImpl(entityManager);
+		//reminder = new Reminder(1, "Email", "Email reminder", "notification", "Jhon123", null, new Date());
+		reminder=new Reminder(1, "Email", "Email reminder", "EmailType", "Jhon123", new Date(), null);
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		Query query = sessionFactory.getCurrentSession().createQuery("DELETE from Reminder");
+		Query query = entityManager.unwrap(Session.class).createQuery("DELETE from Reminder");
 		query.executeUpdate();
 	}
 
 	@Test
 	@Rollback(true)
-	public void testCreateReminderSuccess() throws ReminderNotFoundException {
+	public void testCreateReminderSuccess() throws ReminderNotFoundException, ReminderAlreadyExistException {
 		reminderDAO.createReminder(reminder);
 		Reminder savedReminder = reminderDAO.getReminderById(reminder.getReminderId());
 		assertEquals(reminder, savedReminder);
@@ -62,7 +68,7 @@ public class ReminderDAOImplTest {
 
 	@Test(expected = ReminderNotFoundException.class)
 	@Rollback(true)
-	public void testCreateReminderFailure() throws ReminderNotFoundException {
+	public void testCreateReminderFailure() throws ReminderNotFoundException, ReminderAlreadyExistException {
 		reminderDAO.createReminder(reminder);
 		@SuppressWarnings("unused")
 		Reminder savedReminder = reminderDAO.getReminderById(2);
@@ -71,7 +77,7 @@ public class ReminderDAOImplTest {
 
 	@Test
 	@Rollback(true)
-	public void testUpdateReminderSuccess() throws ReminderNotFoundException {
+	public void testUpdateReminderSuccess() throws ReminderNotFoundException, ReminderAlreadyExistException {
 		reminderDAO.createReminder(reminder);
 		Reminder savedReminder = reminderDAO.getReminderById(reminder.getReminderId());
 		savedReminder.setReminderDescription("email notification");
@@ -82,7 +88,7 @@ public class ReminderDAOImplTest {
 	}
 
 	@Test
-	public void testDeleteReminderSuccess() throws ReminderNotFoundException {
+	public void testDeleteReminderSuccess() throws ReminderNotFoundException, ReminderAlreadyExistException {
 		reminderDAO.createReminder(reminder);
 		Reminder savedReminder = reminderDAO.getReminderById(reminder.getReminderId());
 		boolean status = reminderDAO.deleteReminder(savedReminder.getReminderId());
@@ -90,7 +96,7 @@ public class ReminderDAOImplTest {
 	}
 
 	@Test
-	public void testDeleteReminderFailure() throws ReminderNotFoundException {
+	public void testDeleteReminderFailure() throws ReminderNotFoundException, ReminderAlreadyExistException {
 		reminderDAO.createReminder(reminder);
 		@SuppressWarnings("unused")
 		Reminder savedReminder = reminderDAO.getReminderById(reminder.getReminderId());
@@ -99,7 +105,7 @@ public class ReminderDAOImplTest {
 	}
 
 	@Test
-	public void testGetReminderByIdSuccess() throws ReminderNotFoundException {
+	public void testGetReminderByIdSuccess() throws ReminderNotFoundException, ReminderAlreadyExistException {
 
 		reminderDAO.createReminder(reminder);
 		Reminder savedReminder = reminderDAO.getReminderById(reminder.getReminderId());
@@ -108,7 +114,7 @@ public class ReminderDAOImplTest {
 	}
 
 	@Test(expected = ReminderNotFoundException.class)
-	public void testGetReminderByIdFailure() throws ReminderNotFoundException {
+	public void testGetReminderByIdFailure() throws ReminderNotFoundException, ReminderAlreadyExistException {
 
 		reminderDAO.createReminder(reminder);
 		Reminder savedReminder = reminderDAO.getReminderById(2);
@@ -117,11 +123,11 @@ public class ReminderDAOImplTest {
 	}
 
 	@Test
-	public void testGetAllReminderByUserId() {
+	public void testGetAllReminderByUserId() throws ReminderAlreadyExistException, UserNotFoundException {
 		reminderDAO.createReminder(reminder);
-		reminder = new Reminder(2, "Email", "Email reminder", "notification", "Jhon123", null, new Date());
+		reminder = new Reminder(2, "Email", "Email reminder", "EmailType", "Jhon123", new Date(), null);
 		reminderDAO.createReminder(reminder);
-		reminder = new Reminder(3, "Email", "Email reminder", "notification", "Jhon123", null, new Date());
+		reminder = new Reminder(3, "Email", "Email reminder", "EmailType", "Jhon123", new Date(), null);
 		reminderDAO.createReminder(reminder);
 		List<Reminder> allReminder = reminderDAO.getAllReminderByUserId("Jhon123");
 		assertEquals(3, allReminder.size());

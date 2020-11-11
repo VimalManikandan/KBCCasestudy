@@ -1,6 +1,8 @@
 package com.stackroute.keepnote.dao;
 
+import com.stackroute.keepnote.exception.UserAlreadyExistException;
 import com.stackroute.keepnote.exception.UserNotFoundException;
+import com.stackroute.keepnote.exception.UserUnAuthorized;
 import com.stackroute.keepnote.model.User;
 
 public interface UserDAO {
@@ -10,13 +12,13 @@ public interface UserDAO {
 	 * corresponding Impl classes
 	 */
 
-	public boolean registerUser(User user);
+	public boolean registerUser(User user) throws UserAlreadyExistException, Exception;
 
-	public boolean updateUser(User user);
+	public boolean updateUser(User user) throws UserNotFoundException;
 
-	public User getUserById(String UserId);
+	public User getUserById(String UserId) throws UserNotFoundException;
 
-	public boolean validateUser(String userName, String password) throws UserNotFoundException;
+	public boolean validateUser(String userName, String password) throws  UserUnAuthorized ;
 
-	public boolean deleteUser(String UserId);
+	public boolean deleteUser(String UserId) throws UserNotFoundException;
 }

@@ -59,27 +59,30 @@ public class ReminderControllerTest {
 		user = new User("Jhon123", "Jhon Simon", "974324567", "123456", new Date());
 		// creating Session object and setting session
 		session.setAttribute("loggedInUserId", user.getUserId());
-		reminder = new Reminder(1, "Email", "Email reminder", "notification", "Jhon123", null, new Date());
+		reminder = new Reminder(1, "Email", "Email reminder", "EmailType", "Jhon123", new Date(), null);
 	}
 
 	@Test
 	
 	public void testCreateReminderSuccess() throws Exception {
-		when(reminderService.createReminder(any())).thenReturn(true);
+		//when(reminderService.createReminder(any())).thenReturn(true);
+		when(reminderService.createReminder(any())).thenReturn(reminder);
 		mockMvc.perform(post("/reminder").contentType(MediaType.APPLICATION_JSON).content(asJsonString(reminder))
 				.session(session)).andExpect(status().isCreated());
 	}
 
 	@Test
 	public void testCreateReminderFailure() throws Exception {
-		when(reminderService.createReminder(any())).thenReturn(false);
+		//when(reminderService.createReminder(any())).thenReturn(false);
+		when(reminderService.createReminder(any())).thenReturn(reminder);
 		mockMvc.perform(post("/reminder").contentType(MediaType.APPLICATION_JSON).content(asJsonString(reminder))
 				.session(session)).andExpect(status().isConflict());
 	}
 
 	@Test
 	public void testCreateReminderWithoutSessionFailure() throws Exception {
-		when(reminderService.createReminder(any())).thenReturn(true);
+		//when(reminderService.createReminder(any())).thenReturn(true);
+		when(reminderService.createReminder(any())).thenReturn(reminder);
 		mockMvc.perform(post("/reminder").contentType(MediaType.APPLICATION_JSON).content(asJsonString(reminder)))
 				.andExpect(status().isUnauthorized());
 	}
@@ -135,9 +138,9 @@ public class ReminderControllerTest {
 	@Test
 	public void testGetAllRemindersByUserIdSuccess() throws Exception {
 		allReminders.add(reminder);
-		reminder = new Reminder(2, "Email-2", "Email reminder", "notification", "Jhon123", null, new Date());
+		reminder = new Reminder(2, "Email", "Email reminder", "EmailType", "Jhon123", new Date(), null);
 		allReminders.add(reminder);
-		reminder = new Reminder(2, "Email-2", "Email reminder", "notification", "Jhon123", null, new Date());
+		reminder = new Reminder(3, "Email", "Email reminder", "EmailType", "Jhon123", new Date(), null);
 		allReminders.add(reminder);
 
 		when(reminderService.getAllReminderByUserId(user.getUserId())).thenReturn(allReminders);
@@ -148,9 +151,9 @@ public class ReminderControllerTest {
 	@Test
 	public void testGetAllRemindersByUserIdWithoutSessionFailure() throws Exception {
 		allReminders.add(reminder);
-		reminder = new Reminder(2, "Email-2", "Email reminder", "notification", "Jhon123", null, new Date());
+		reminder = new Reminder(2, "Email", "Email reminder", "EmailType", "Jhon123", new Date(), null);
 		allReminders.add(reminder);
-		reminder = new Reminder(2, "Email-2", "Email reminder", "notification", "Jhon123", null, new Date());
+		reminder = new Reminder(3, "Email", "Email reminder", "EmailType", "Jhon123", new Date(), null);
 		allReminders.add(reminder);
 
 		when(reminderService.getAllReminderByUserId(user.getUserId())).thenReturn(allReminders);

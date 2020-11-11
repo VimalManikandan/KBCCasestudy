@@ -17,12 +17,13 @@ public class NoteTest {
 		note = new Note();
 		note.setNoteId(1);
 		note.setNoteTitle("Testing");
-		note.setNoteContent("Bean Testing");
+		note.setContent("Bean Testing");
 		note.setCreatedBy("Jhon123");
 		note.setCategory(null);
 		note.setReminder(null);
 		note.setNoteStatus("Active");
-		note.setNoteCreatedAt(new Date());
+		note.setCreatedAt(new Date());
+		note.setNote("Testing Note");
 	}
 
 	@Test

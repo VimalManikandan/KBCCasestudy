@@ -73,7 +73,7 @@ public class CategoryControllerTest {
 		session.setAttribute("loggedInUserId", user.getUserId());
 
 		// Creating Category Object
-		category = new Category(1, "Testing", "All about testing spring application", new Date(), null, null);
+		category = new Category(1, "Testing", "All about testing spring application", "Jhon123", new Date(), null);
 
 	}
 
@@ -81,7 +81,7 @@ public class CategoryControllerTest {
 
 	public void testCreateCategorySuccess() throws Exception {
 
-		when(categoryService.createCategory(any())).thenReturn(true);
+		when(categoryService.createCategory(any())).thenReturn(category);
 		mockMvc.perform(post("/category").contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
 				.session(session).content(asJsonString(category))).andExpect(status().isCreated()).andDo(print());
 		verify(categoryService, times(1)).createCategory(Mockito.any(Category.class));
@@ -92,7 +92,7 @@ public class CategoryControllerTest {
 	@Test
 	public void testCreateCategoryFailure() throws Exception {
 
-		when(categoryService.createCategory(category)).thenReturn(false);
+		when(categoryService.createCategory(category)).thenReturn(category);
 		mockMvc.perform(post("/category").contentType(MediaType.APPLICATION_JSON).content(asJsonString(category))
 				.session(session)).andExpect(status().isConflict()).andDo(print());
 
@@ -101,7 +101,7 @@ public class CategoryControllerTest {
 	@Test
 	public void testCreateCategoryWithoutSessionFailure() throws Exception {
 
-		when(categoryService.createCategory(category)).thenReturn(false);
+		when(categoryService.createCategory(category)).thenReturn(category);
 		mockMvc.perform(post("/category").contentType(MediaType.APPLICATION_JSON).content(asJsonString(category)))
 				.andExpect(status().isUnauthorized()).andDo(print());
 
@@ -160,9 +160,9 @@ public class CategoryControllerTest {
 	public void testGetAllCategoriesByUserIdSuccess() throws Exception {
 
 		categories.add(category);
-		category = new Category(2, "Testing-2", "All about testing spring application", new Date(), null, null);
+		category = new Category(2, "Testing", "All about testing spring application", "Jhon123", new Date(), null);
 		categories.add(category);
-		category = new Category(3, "Testing-3", "All about testing spring application", new Date(), null, null);
+		category = new Category(3, "Testing", "All about testing spring application", "Jhon123", new Date(), null);
 		categories.add(category);
 
 		when(categoryService.getAllCategoryByUserId("Jhon123")).thenReturn(categories);
@@ -174,9 +174,9 @@ public class CategoryControllerTest {
 	public void testGetAllCategoriesByUserIdWithoutSessionFailure() throws Exception {
 
 		categories.add(category);
-		category = new Category(2, "Testing-2", "All about testing spring application", new Date(), null, null);
+		category = new Category(2, "Testing", "All about testing spring application", "Jhon123", new Date(), null);
 		categories.add(category);
-		category = new Category(3, "Testing-3", "All about testing spring application", new Date(), null, null);
+		category = new Category(3, "Testing", "All about testing spring application", "Jhon123", new Date(), null);
 		categories.add(category);
 
 		when(categoryService.getAllCategoryByUserId("Jhon123")).thenReturn(categories);

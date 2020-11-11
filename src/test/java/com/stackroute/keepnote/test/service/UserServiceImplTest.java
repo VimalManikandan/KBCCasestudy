@@ -17,6 +17,7 @@ import org.mockito.MockitoAnnotations;
 import com.stackroute.keepnote.dao.UserDAO;
 import com.stackroute.keepnote.exception.UserAlreadyExistException;
 import com.stackroute.keepnote.exception.UserNotFoundException;
+import com.stackroute.keepnote.exception.UserUnAuthorized;
 import com.stackroute.keepnote.model.User;
 import com.stackroute.keepnote.service.UserServiceImpl;
 
@@ -38,7 +39,7 @@ public class UserServiceImplTest {
 	}
 
 	@Test
-	public void testRegisterUserSuccess() throws UserAlreadyExistException {
+	public void testRegisterUserSuccess() throws Exception {
 		when(userDAO.getUserById(user.getUserId())).thenReturn(null);
 		when(userDAO.registerUser(user)).thenReturn(true);
 		boolean status = userServiceImpl.registerUser(user);
@@ -47,7 +48,7 @@ public class UserServiceImplTest {
 	}
 
 	@Test(expected = UserAlreadyExistException.class)
-	public void testRegisterUserFailure() throws UserAlreadyExistException {
+	public void testRegisterUserFailure() throws Exception {
 		when(userDAO.getUserById(user.getUserId())).thenReturn(user);
 		when(userDAO.registerUser(user)).thenReturn(false);
 		boolean status = userServiceImpl.registerUser(user);
@@ -100,7 +101,7 @@ public class UserServiceImplTest {
 	}
 
 	@Test
-	public void testValidateUserSuccess() throws UserNotFoundException {
+	public void testValidateUserSuccess() throws  UserUnAuthorized {
 
 		when(userDAO.validateUser("Jhon123", "123456")).thenReturn(true);
 		boolean status = userServiceImpl.validateUser("Jhon123", "123456");
@@ -109,7 +110,7 @@ public class UserServiceImplTest {
 	}
 
 	@Test(expected = UserNotFoundException.class)
-	public void testValidateUserFailure() throws UserNotFoundException {
+	public void testValidateUserFailure() throws  UserUnAuthorized {
 		when(userDAO.validateUser("Jhon123", "123456")).thenReturn(false);
 		@SuppressWarnings("unused")
 		boolean status = userServiceImpl.validateUser("Jhon123", "123456");
@@ -117,7 +118,7 @@ public class UserServiceImplTest {
 	}
 
 	@Test
-	public void testDeleteUserSuccess() {
+	public void testDeleteUserSuccess() throws UserNotFoundException {
 
 		when(userDAO.deleteUser("Jhon123")).thenReturn(true);
 		boolean status = userServiceImpl.deleteUser("Jhon123");
@@ -126,7 +127,7 @@ public class UserServiceImplTest {
 	}
 
 	@Test
-	public void testDeleteUserFailure() {
+	public void testDeleteUserFailure() throws UserNotFoundException {
 		when(userDAO.deleteUser("Jhon123")).thenReturn(false);
 		boolean status = userServiceImpl.deleteUser("Jhon123");
 		assertEquals(false, status);

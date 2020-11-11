@@ -15,7 +15,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.stackroute.keepnote.dao.ReminderDAO;
+import com.stackroute.keepnote.exception.ReminderAlreadyExistException;
 import com.stackroute.keepnote.exception.ReminderNotFoundException;
+import com.stackroute.keepnote.exception.UserNotFoundException;
 import com.stackroute.keepnote.model.Reminder;
 import com.stackroute.keepnote.service.ReminderServiceImpl;
 
@@ -31,25 +33,25 @@ public class ReminderServiceImplTest {
 	@Before
 	public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
-		reminder = new Reminder(1, "Email", "Email reminder", "notification", "Jhon123", null, new Date());
+		reminder = new Reminder(1, "Email", "Email reminder", "EmailType", "Jhon123", new Date(), null);
 		allReminder = new ArrayList<Reminder>();
 	}
 
 	@Test
-	public void testCreateReminderSuccess() {
+	public void testCreateReminderSuccess() throws ReminderAlreadyExistException {
 
-		when(reminderDAO.createReminder(reminder)).thenReturn(true);
-		boolean status = reminderServiceImpl.createReminder(reminder);
-		assertEquals(true, status);
+		when(reminderDAO.createReminder(reminder)).thenReturn(reminder);
+		Reminder rm = reminderServiceImpl.createReminder(reminder);
+		assertNotNull(rm);
 		verify(reminderDAO, times(1)).createReminder(reminder);
 	}
 
 	@Test
-	public void testCreateReminderFailure() {
+	public void testCreateReminderFailure() throws ReminderAlreadyExistException {
 
-		when(reminderDAO.createReminder(reminder)).thenReturn(false);
-		boolean status = reminderServiceImpl.createReminder(reminder);
-		assertEquals(false, status);
+		when(reminderDAO.createReminder(reminder)).thenReturn(reminder);
+		Reminder r1 = reminderServiceImpl.createReminder(reminder);
+		assertNull(r1);
 		verify(reminderDAO, times(1)).createReminder(reminder);
 	}
 
@@ -77,7 +79,7 @@ public class ReminderServiceImplTest {
 	}
 
 	@Test
-	public void testDeleteReminder() {
+	public void testDeleteReminder() throws ReminderNotFoundException {
 
 		when(reminderDAO.deleteReminder(reminder.getReminderId())).thenReturn(true);
 		boolean status = reminderServiceImpl.deleteReminder(reminder.getReminderId());
@@ -102,11 +104,11 @@ public class ReminderServiceImplTest {
 	}
 
 	@Test
-	public void testGetAllReminder() {
+	public void testGetAllReminder() throws UserNotFoundException {
 		allReminder.add(reminder);
-		reminder = new Reminder(2, "Email", "Email reminder", "notification", "Jhon123", null, new Date());
+		reminder = new Reminder(2, "Email", "Email reminder", "EmailType", "Jhon123", new Date(), null);
 		allReminder.add(reminder);
-		reminder = new Reminder(3, "Email", "Email reminder", "notification", "Jhon123", null, new Date());
+		reminder = new Reminder(3, "Email", "Email reminder", "EmailType", "Jhon123", new Date(), null);
 		allReminder.add(reminder);
 		
 		when(reminderDAO.getAllReminderByUserId("Jhon123")).thenReturn(allReminder);

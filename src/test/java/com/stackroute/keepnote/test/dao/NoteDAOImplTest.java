@@ -4,8 +4,11 @@ import static org.junit.Assert.*;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
+
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -23,7 +26,9 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import com.stackroute.keepnote.config.ApplicationContextConfig;
 import com.stackroute.keepnote.dao.NoteDAO;
 import com.stackroute.keepnote.dao.NoteDAOImpl;
+import com.stackroute.keepnote.exception.NotAlreadyExistsException;
 import com.stackroute.keepnote.exception.NoteNotFoundException;
+import com.stackroute.keepnote.exception.UserNotFoundException;
 import com.stackroute.keepnote.model.Note;
 
 @RunWith(SpringRunner.class)
@@ -33,26 +38,28 @@ import com.stackroute.keepnote.model.Note;
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, TransactionalTestExecutionListener.class })
 public class NoteDAOImplTest {
 
-@Autowired private SessionFactory sessionFactory;
-	       private NoteDAO noteDAO;
-	       private Note note;
+	@Autowired
+	private EntityManager entityManager;
+	//private SessionFactory sessionFactory;
+	private NoteDAO noteDAO;
+	private Note note;
 
 	@Before
 	public void setUp() {
-		noteDAO = new NoteDAOImpl(sessionFactory);
-		note = new Note(1, "Testing-1", "Testing Service layer", "Active", new Date(), null, null, "Jhon123");
+		noteDAO = new NoteDAOImpl(entityManager);
+		note = new Note(1, "Testing-1", "Testing Service layer", "Active", "abc", new Date(), null, null, "Jhon123");
 
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		Query query = sessionFactory.getCurrentSession().createQuery("DELETE from Note");
+		Query query = entityManager.unwrap(Session.class).createQuery("DELETE from Note");
 		query.executeUpdate();
 	}
 
 	@Test
 	@Rollback(true)
-	public void testCreateNoteSuccess() {
+	public void testCreateNoteSuccess() throws NotAlreadyExistsException, UserNotFoundException, NoteNotFoundException {
 
 		noteDAO.createNote(note);
 		List<Note> notes = noteDAO.getAllNotesByUserId("Jhon123");
@@ -62,7 +69,7 @@ public class NoteDAOImplTest {
 
 	@Test
 	@Rollback(true)
-	public void testCreateNoteFailure() {
+	public void testCreateNoteFailure() throws NotAlreadyExistsException, UserNotFoundException, NoteNotFoundException {
 
 		noteDAO.createNote(note);
 		List<Note> notes = noteDAO.getAllNotesByUserId("Jhon123");
@@ -73,7 +80,7 @@ public class NoteDAOImplTest {
 
 	@Test
 	@Rollback(true)
-	public void testDeleteNoteSuccess() throws NoteNotFoundException {
+	public void testDeleteNoteSuccess() throws NoteNotFoundException, NotAlreadyExistsException {
 
 		noteDAO.createNote(note);
 		Note noteData = noteDAO.getNoteById(note.getNoteId());
@@ -83,9 +90,9 @@ public class NoteDAOImplTest {
 	}
 
 	@Test
-	public void testGetAllNotesByUserId() {
-		Note note2 = new Note(2, "Testing-2", "Testing Service layer", "Active", new Date(), null, null, "Jhon123");
-		Note note3 = new Note(3, "Testing-3", "Testing Service layer", "Active", new Date(), null, null, "Jhon123");
+	public void testGetAllNotesByUserId() throws NotAlreadyExistsException, UserNotFoundException, NoteNotFoundException {
+		Note note2 = new Note(2, "Testing-1", "Testing Service layer", "Active", "abc", new Date(), null, null, "Jhon123");
+		Note note3 = new Note(3, "Testing-1", "Testing Service layer", "Active", "abc", new Date(), null, null, "Jhon123");
 		noteDAO.createNote(note);
 		noteDAO.createNote(note2);
 		noteDAO.createNote(note3);
@@ -98,7 +105,7 @@ public class NoteDAOImplTest {
 
 	@Test
 	@Rollback(true)
-	public void testGetNoteById() throws NoteNotFoundException {
+	public void testGetNoteById() throws NoteNotFoundException, NotAlreadyExistsException {
 
 		noteDAO.createNote(note);
 		Note noteData = noteDAO.getNoteById(note.getNoteId());
@@ -109,7 +116,7 @@ public class NoteDAOImplTest {
 
 	@Test(expected = NoteNotFoundException.class)
 	@Rollback(true)
-	public void testGetNoteByIdFailure() throws NoteNotFoundException {
+	public void testGetNoteByIdFailure() throws NoteNotFoundException, NotAlreadyExistsException {
 
 		noteDAO.createNote(note);
 		Note noteData = noteDAO.getNoteById(2);
@@ -120,15 +127,15 @@ public class NoteDAOImplTest {
 
 	@Test
 	@Rollback(true)
-	public void testUpdateNote() throws NoteNotFoundException {
+	public void testUpdateNote() throws Exception {
 		noteDAO.createNote(note);
 		Note noteData = noteDAO.getNoteById(note.getNoteId());
-		noteData.setNoteContent("Unit testing for DAO layer");
-		noteData.setNoteCreatedAt(new Date());
+		noteData.setContent("Unit testing for DAO layer");
+		noteData.setCreatedAt(new Date());
 		;
 		boolean status = noteDAO.UpdateNote(noteData);
 		Note updatedNote = noteDAO.getNoteById(noteData.getNoteId());
-		assertEquals("Unit testing for DAO layer", updatedNote.getNoteContent());
+		assertEquals("Unit testing for DAO layer", updatedNote.getContent());
 		assertEquals(true, status);
 		noteDAO.deleteNote(updatedNote.getNoteId());
 

@@ -18,8 +18,10 @@ import com.stackroute.keepnote.dao.CategoryDAO;
 import com.stackroute.keepnote.dao.NoteDAO;
 import com.stackroute.keepnote.dao.ReminderDAO;
 import com.stackroute.keepnote.exception.CategoryNotFoundException;
+import com.stackroute.keepnote.exception.NotAlreadyExistsException;
 import com.stackroute.keepnote.exception.NoteNotFoundException;
 import com.stackroute.keepnote.exception.ReminderNotFoundException;
+import com.stackroute.keepnote.exception.UserNotFoundException;
 import com.stackroute.keepnote.model.Category;
 import com.stackroute.keepnote.model.Note;
 import com.stackroute.keepnote.model.Reminder;
@@ -41,9 +43,9 @@ public class NoteServiceImplTest {
 	@Before
 	public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
-		category = new Category(1, "Java", "Testing in java", new Date(), "Jhon123", null);
-		reminder = new Reminder(1, "Email reminder", "daily reminder", "Active", "Jhon123", null, new Date());
-		note = new Note(1, "Testing", "Testing Service layer", "Active", new Date(), category, reminder, "Jhon123");
+		category = new Category(1, "Testing", "All about testing spring application", "Jhon123", new Date(), null);
+		reminder = new Reminder(1, "Email", "Email reminder", "EmailType", "Jhon123", new Date(), null);
+		note = new Note(1, "Testing-1", "Testing Service layer", "Active", "abc", new Date(), category, reminder, "Jhon123");
 		notes = new ArrayList<Note>();
 
 	}
@@ -53,7 +55,7 @@ public class NoteServiceImplTest {
 	}
 
 	@Test
-	public void testCreateNoteSuccess() throws ReminderNotFoundException, CategoryNotFoundException {
+	public void testCreateNoteSuccess() throws ReminderNotFoundException, CategoryNotFoundException, NotAlreadyExistsException {
 		when(noteDAO.createNote(note)).thenReturn(true);
 		boolean status = noteServiceImpl.createNote(note);
 		assertEquals(true, status);
@@ -64,8 +66,8 @@ public class NoteServiceImplTest {
 	}
 
 	@Test
-	public void testCreateNoteSuccessWithoutCategoryAndReminder() throws ReminderNotFoundException, CategoryNotFoundException {
-		note = new Note(1, "Testing", "Testing Service layer", "Active", new Date(), null, null, "Jhon123");
+	public void testCreateNoteSuccessWithoutCategoryAndReminder() throws ReminderNotFoundException, CategoryNotFoundException, NotAlreadyExistsException {
+		note = new Note(1, "Testing-1", "Testing Service layer", "Active", "abc", new Date(), null, null, "Jhon123");
 		when(noteDAO.createNote(note)).thenReturn(true);
 		boolean status = noteServiceImpl.createNote(note);
 		assertEquals(true, status);
@@ -74,8 +76,8 @@ public class NoteServiceImplTest {
 	}
 
 	@Test
-	public void testCreateNoteSuccessWithoutCategory() throws ReminderNotFoundException, CategoryNotFoundException {
-		note = new Note(1, "Testing", "Testing Service layer", "Active", new Date(), null, reminder, "Jhon123");
+	public void testCreateNoteSuccessWithoutCategory() throws ReminderNotFoundException, CategoryNotFoundException, NotAlreadyExistsException {
+		note = new Note(1, "Testing-1", "Testing Service layer", "Active", "abc", new Date(), null, null, "Jhon123");
 		when(noteDAO.createNote(note)).thenReturn(true);
 		boolean status = noteServiceImpl.createNote(note);
 		assertEquals(true, status);
@@ -85,8 +87,8 @@ public class NoteServiceImplTest {
 	}
 
 	@Test
-	public void testCreateNoteSuccessWithoutReminder() throws ReminderNotFoundException, CategoryNotFoundException {
-		note = new Note(1, "Testing", "Testing Service layer", "Active", new Date(), category, null, "Jhon123");
+	public void testCreateNoteSuccessWithoutReminder() throws ReminderNotFoundException, CategoryNotFoundException, NotAlreadyExistsException {
+		note = new Note(1, "Testing-1", "Testing Service layer", "Active", "abc", new Date(), null, null, "Jhon123");
 		when(noteDAO.createNote(note)).thenReturn(true);
 		boolean status = noteServiceImpl.createNote(note);
 		assertEquals(true, status);
@@ -96,7 +98,7 @@ public class NoteServiceImplTest {
 	}
 
 	@Test()
-	public void testCreateNoteFailure() throws ReminderNotFoundException, CategoryNotFoundException {
+	public void testCreateNoteFailure() throws ReminderNotFoundException, CategoryNotFoundException, NotAlreadyExistsException {
 		when(noteDAO.createNote(note)).thenReturn(false);
 		boolean status = noteServiceImpl.createNote(note);
 		assertEquals(false, status);
@@ -107,9 +109,9 @@ public class NoteServiceImplTest {
 	}
 
 	@Test(expected = ReminderNotFoundException.class)
-	public void testCreateNoteWithoutCategoryFailure() throws ReminderNotFoundException, CategoryNotFoundException {
-		reminder = new Reminder(2, "Email reminder", "daily reminder", "Active", "Jhon123", null, new Date());
-		note = new Note(1, "Testing", "Testing Service layer", "Active", new Date(), null, reminder, "Jhon123");
+	public void testCreateNoteWithoutCategoryFailure() throws ReminderNotFoundException, CategoryNotFoundException, NotAlreadyExistsException {
+		reminder =new Reminder(2, "Email", "Email reminder", "EmailType", "Jhon123", new Date(), null);
+		note = new Note(1, "Testing-1", "Testing Service layer", "Active", "abc", new Date(), null, null, "Jhon123");
 		when(reminderDAO.getReminderById(2)).thenThrow(ReminderNotFoundException.class);
 		when(noteDAO.createNote(note)).thenReturn(true);
 		@SuppressWarnings("unused")
@@ -118,7 +120,7 @@ public class NoteServiceImplTest {
 	}
 
 	@Test
-	public void testDeleteNoteSuccess() {
+	public void testDeleteNoteSuccess() throws NoteNotFoundException {
 		when(noteDAO.deleteNote(1)).thenReturn(true);
 		boolean status = noteServiceImpl.deleteNote(1);
 		assertEquals(true, status);
@@ -126,7 +128,7 @@ public class NoteServiceImplTest {
 	}
 
 	@Test
-	public void testDeleteNoteFailure() {
+	public void testDeleteNoteFailure() throws NoteNotFoundException {
 		when(noteDAO.deleteNote(1)).thenReturn(false);
 		boolean status = noteServiceImpl.deleteNote(1);
 		assertEquals(false, status);
@@ -134,12 +136,12 @@ public class NoteServiceImplTest {
 	}
 
 	@Test
-	public void testGetAllNotesByUserIdSucess() {
+	public void testGetAllNotesByUserIdSucess() throws UserNotFoundException {
 
 		notes.add(note);
-		note = new Note(2, "Testing-2", "Testing Service layer", "Active", new Date(), category, reminder, "Jhon123");
+		note = new Note(2, "Testing-1", "Testing Service layer", "Active", "abc", new Date(), null, null, "Jhon123");
 		notes.add(note);
-		note = new Note(3, "Testing-3", "Testing Service layer", "Active", new Date(), category, reminder, "Jhon123");
+		note = new Note(3, "Testing-1", "Testing Service layer", "Active", "abc", new Date(), null, null, "Jhon123");
 		notes.add(note);
 		when(noteDAO.getAllNotesByUserId("Jhon123")).thenReturn(notes);
 		List<Note> allNotes = noteServiceImpl.getAllNotesByUserId("Jhon123");
@@ -168,15 +170,15 @@ public class NoteServiceImplTest {
 	}
 
 	@Test
-	public void testUpdateNoteSuccess() throws ReminderNotFoundException, NoteNotFoundException, CategoryNotFoundException {
+	public void testUpdateNoteSuccess() throws Exception {
 
-		note.setNoteContent("Testing updateNote()");
+		note.setContent("Testing updateNote()");
 		when(reminderDAO.getReminderById(1)).thenReturn(reminder);
 		when(categoryDAO.getCategoryById(1)).thenReturn(category);
 		when(noteDAO.getNoteById(1)).thenReturn(note);
 		when(noteDAO.UpdateNote(note)).thenReturn(true);
-		Note updatedNote = noteServiceImpl.updateNote(note, 1);
-		assertEquals("Testing updateNote()", updatedNote.getNoteContent());
+		boolean rslt = noteServiceImpl.updateNote(note, 1);
+		assertEquals(true, rslt);
 		verify(categoryDAO, times(1)).getCategoryById(category.getCategoryId());
 		verify(noteDAO, times(1)).getNoteById(1);
 		verify(noteDAO, times(1)).UpdateNote(note);
@@ -184,16 +186,16 @@ public class NoteServiceImplTest {
 	}
 
 	@Test
-	public void testUpdateNoteWithoutReminderSuccess() throws ReminderNotFoundException, NoteNotFoundException, CategoryNotFoundException {
+	public void testUpdateNoteWithoutReminderSuccess() throws Exception {
 
-		note.setNoteContent("Testing updateNote()");
+		note.setContent("Testing updateNote()");
 		note.setReminder(null);
 		when(reminderDAO.getReminderById(1)).thenReturn(null);
 		when(categoryDAO.getCategoryById(1)).thenReturn(category);
 		when(noteDAO.getNoteById(1)).thenReturn(note);
 		when(noteDAO.UpdateNote(note)).thenReturn(true);
-		Note updatedNote = noteServiceImpl.updateNote(note, 1);
-		assertEquals("Testing updateNote()", updatedNote.getNoteContent());
+		boolean rslt = noteServiceImpl.updateNote(note, 1);
+		assertEquals(true, rslt);
 		verify(categoryDAO, times(1)).getCategoryById(category.getCategoryId());
 		verify(noteDAO, times(1)).getNoteById(1);
 		verify(noteDAO, times(1)).UpdateNote(note);
@@ -201,16 +203,16 @@ public class NoteServiceImplTest {
 	}
 
 	@Test
-	public void testUpdateNoteWithoutCategorySuccess() throws ReminderNotFoundException, NoteNotFoundException, CategoryNotFoundException {
+	public void testUpdateNoteWithoutCategorySuccess() throws Exception {
 
-		note.setNoteContent("Testing updateNote()");
+		note.setContent("Testing updateNote()");
 		note.setCategory(null);
 		when(reminderDAO.getReminderById(1)).thenReturn(reminder);
 		when(categoryDAO.getCategoryById(1)).thenReturn(null);
 		when(noteDAO.getNoteById(1)).thenReturn(note);
 		when(noteDAO.UpdateNote(note)).thenReturn(true);
-		Note updatedNote = noteServiceImpl.updateNote(note, 1);
-		assertEquals("Testing updateNote()", updatedNote.getNoteContent());
+		boolean rslt = noteServiceImpl.updateNote(note, 1);
+		assertEquals(true, rslt);
 		verify(noteDAO, times(1)).getNoteById(1);
 		verify(noteDAO, times(1)).UpdateNote(note);
 		verify(reminderDAO, times(1)).getReminderById(1);
@@ -218,32 +220,32 @@ public class NoteServiceImplTest {
 
 	@Test
 	public void testUpdateNoteWithoutCategoryAndReminderSuccess()
-			throws ReminderNotFoundException, NoteNotFoundException, CategoryNotFoundException {
+			throws Exception {
 
-		note.setNoteContent("Testing updateNote()");
+		note.setContent("Testing updateNote()");
 		note.setReminder(null);
 		note.setCategory(null);
 		when(reminderDAO.getReminderById(1)).thenReturn(null);
 		when(categoryDAO.getCategoryById(1)).thenReturn(null);
 		when(noteDAO.getNoteById(1)).thenReturn(note);
 		when(noteDAO.UpdateNote(note)).thenReturn(true);
-		Note updatedNote = noteServiceImpl.updateNote(note, 1);
-		assertEquals("Testing updateNote()", updatedNote.getNoteContent());
+		boolean rslt = noteServiceImpl.updateNote(note, 1);
+		assertEquals(true, rslt);
 		verify(noteDAO, times(1)).getNoteById(1);
 		verify(noteDAO, times(1)).UpdateNote(note);
 
 	}
 
 	@Test(expected = NoteNotFoundException.class)
-	public void testUpdateNoteFailure() throws ReminderNotFoundException, NoteNotFoundException, CategoryNotFoundException {
+	public void testUpdateNoteFailure() throws Exception {
 
-		note.setNoteContent("Testing updateNote()");
+		note.setContent("Testing updateNote()");
 		when(reminderDAO.getReminderById(1)).thenReturn(reminder);
 		when(categoryDAO.getCategoryById(1)).thenReturn(category);
 		when(noteDAO.getNoteById(1)).thenThrow(NoteNotFoundException.class);
 		when(noteDAO.UpdateNote(note)).thenReturn(true);
 		@SuppressWarnings("unused")
-		Note updatedNote = noteServiceImpl.updateNote(note, 1);
+		boolean rslt = noteServiceImpl.updateNote(note, 1);
 
 	}
 

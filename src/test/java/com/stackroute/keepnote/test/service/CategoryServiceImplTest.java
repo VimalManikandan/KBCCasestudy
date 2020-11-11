@@ -15,7 +15,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.stackroute.keepnote.dao.CategoryDAO;
+import com.stackroute.keepnote.exception.CategoryAlreadyExistException;
 import com.stackroute.keepnote.exception.CategoryNotFoundException;
+import com.stackroute.keepnote.exception.UserNotFoundException;
 import com.stackroute.keepnote.model.Category;
 import com.stackroute.keepnote.service.CategoryServiceImpl;
 
@@ -31,29 +33,31 @@ public class CategoryServiceImplTest {
 	@Before
 	public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
-		category = new Category(1, "Testing", "All about testing spring application", new Date(), "Jhon123", null);
+		//category = new Category(1, "Testing", "All about testing spring application", new Date(), "Jhon123", null);
+		category = new Category(1, "Testing", "All about testing spring application", "Jhon123", new Date(), null);
 		allCategory = new ArrayList<Category>();
 	}
 
 	@Test
-	public void testCreateCategorySuccess() {
+	public void testCreateCategorySuccess() throws CategoryAlreadyExistException {
 
-		when(categoryDAO.createCategory(category)).thenReturn(true);
-		boolean status = categoryServiceImpl.createCategory(category);
-		assertEquals(true, status);
+		
+		when(categoryDAO.createCategory(category)).thenReturn(category);
+		Category c1= categoryServiceImpl.createCategory(category);
+		assertNotNull(c1);
 		verify(categoryDAO, times(1)).createCategory(category);
 	}
 
 	@Test
-	public void testCreateCategoryFailure() {
-		when(categoryDAO.createCategory(category)).thenReturn(false);
-		boolean status = categoryServiceImpl.createCategory(category);
-		assertEquals(false, status);
+	public void testCreateCategoryFailure() throws CategoryAlreadyExistException {
+		when(categoryDAO.createCategory(category)).thenReturn(category);
+		Category c1= categoryServiceImpl.createCategory(category);
+		assertNull(c1);
 		verify(categoryDAO, times(1)).createCategory(category);
 	}
 
 	@Test
-	public void testDeleteCategorySuccess() {
+	public void testDeleteCategorySuccess() throws CategoryNotFoundException {
 		when(categoryDAO.deleteCategory(1)).thenReturn(true);
 		boolean status = categoryServiceImpl.deleteCategory(1);
 		assertEquals(true, status);
@@ -61,7 +65,7 @@ public class CategoryServiceImplTest {
 	}
 
 	@Test
-	public void testDeleteCategoryFailure() {
+	public void testDeleteCategoryFailure() throws CategoryNotFoundException {
 		when(categoryDAO.deleteCategory(1)).thenReturn(false);
 		boolean status = categoryServiceImpl.deleteCategory(1);
 		assertEquals(false, status);
@@ -107,12 +111,12 @@ public class CategoryServiceImplTest {
 	}
 
 	@Test
-	public void testGetAllCategoryByUserIdSuccess() {
+	public void testGetAllCategoryByUserIdSuccess() throws UserNotFoundException {
 
 		allCategory.add(category);
-		category = new Category(2, "Testing-2", "All about testing spring application", new Date(), "Jhon123", null);
+		category = new Category(2, "Testing", "All about testing spring application", "Jhon123", new Date(), null);
 		allCategory.add(category);
-		category = new Category(3, "Testing-3", "All about testing spring application", new Date(), "Jhon123", null);
+		category = new Category(3, "Testing", "All about testing spring application", "Jhon123", new Date(), null);
 		allCategory.add(category);
 
 		when(categoryDAO.getAllCategoryByUserId("Jhon123")).thenReturn(allCategory);
