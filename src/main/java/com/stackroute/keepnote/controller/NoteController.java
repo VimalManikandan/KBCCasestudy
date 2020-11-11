@@ -160,10 +160,14 @@ public class NoteController {
 		int rslt = (usersList != null) ? Collections.frequency(usersList, noteService.getNoteById(id).getCreatedBy())
 				: 0;
 		if (rslt == 0) {
-			throw new UserUnAuthorized("UnAuthorized");
+			throw new UserUnAuthorized("Un Authorized");
 		}
 
 		Responce responce = new Responce();
+		
+		
+		
+		
 		try {
 			if (noteService.updateNote(note, id)) {
 				responce.setMessage("OK");
