@@ -142,12 +142,8 @@ public class NoteDAOImpl implements NoteDAO {
 			session.merge(n1);	
 			return true;
 		} catch (Exception e) {
-			throw e;
-			//throw new NoteNotFoundException("Note Not Found");		
+			throw new NoteNotFoundException("Note Not Found");		
 		}
-
-	
-
 	}
 
 

@@ -172,10 +172,6 @@ public class NoteController {
 		if (rslt == 0) {
 			throw new UserUnAuthorized("UnAuthorized");
 		}
-
-		Category category = new Category(20, "Testing", "All about testing spring application", "Jhon123", new Date(), null);
-		Reminder reminder = new Reminder(20, "Email", "Email reminder", "EmailType", "Jhon123", new Date(), null);
-		note = new Note(1, "Testing-1", "Testing Service Xyzzzzzzz", "Active", "abc", new Date(), category, reminder, "Jhon123");
 		
 		
 		Responce responce = new Responce();

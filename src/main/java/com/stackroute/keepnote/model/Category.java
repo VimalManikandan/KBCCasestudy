@@ -55,7 +55,7 @@ public class Category {
 	private Date categoryCreationDate;
 	
 	@JsonIgnore	
-	@OneToMany(mappedBy = "category",fetch = FetchType.EAGER,//cascade=CascadeType.ALL			
+	@OneToMany(mappedBy = "category",fetch = FetchType.LAZY,//cascade=CascadeType.ALL			
 		cascade= {CascadeType.PERSIST, CascadeType.MERGE,
 					 CascadeType.DETACH, CascadeType.REFRESH})
 	private List<Note> notes;
