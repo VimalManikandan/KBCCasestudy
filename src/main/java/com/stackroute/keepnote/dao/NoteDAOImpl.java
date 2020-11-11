@@ -112,13 +112,20 @@ public class NoteDAOImpl implements NoteDAO {
 	public Note getNoteById(int noteId) throws NoteNotFoundException {
 		Session session = entityManager.unwrap(Session.class);
 		Note note=session.get(Note.class, noteId);
+		try {
 		if(note==null) {
 			throw new NoteNotFoundException("Not Found");
 		}
 		else {
 			return note;
 		}
-
+		}
+		catch(NoteNotFoundException e) {
+			throw e;
+		}
+		catch(Exception e) {
+			throw e;
+		}
 
 	}
 

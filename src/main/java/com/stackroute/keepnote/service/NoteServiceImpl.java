@@ -102,6 +102,7 @@ public class NoteServiceImpl implements NoteService {
 	 */
 
 	public boolean  updateNote(Note note, int id) throws ReminderNotFoundException, NoteNotFoundException, Exception {
+		try {
 		Note n1=noteDAO.getNoteById(id);
 		if(note.getCategory()==null) {
 			throw new CategoryNotFoundException("Category Not Found");
@@ -123,6 +124,19 @@ public class NoteServiceImpl implements NoteService {
 				return true;
 			else
 				return false;
+		}
+		}
+		catch(CategoryNotFoundException e) {
+			throw e;
+		}
+		catch(ReminderNotFoundException e) {
+			throw e;
+		}
+		catch(NoteNotFoundException e) {
+			throw e;
+		}
+		catch(Exception e) {
+			throw e;
 		}
 	}
 
