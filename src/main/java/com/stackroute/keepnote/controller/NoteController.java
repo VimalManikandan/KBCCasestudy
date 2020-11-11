@@ -165,9 +165,6 @@ public class NoteController {
 
 		Responce responce = new Responce();
 		
-		
-		
-		
 		try {
 			if (noteService.updateNote(note, id)) {
 				responce.setMessage("OK");
