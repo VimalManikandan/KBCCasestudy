@@ -163,12 +163,6 @@ public class NoteController {
 			throw new UserUnAuthorized("UnAuthorized");
 		}
 
-		Category category = new Category(21, "Testing", "All about testing spring application", "v28", new Date(),
-				null);
-		Reminder reminder = new Reminder(21, "Email", "Email reminder", "EmailType", "v28", new Date(), null);
-		note = new Note(21, "Testing-1", "Just Test", "Active", "abc", new Date(), category, reminder,
-				"v28");
-
 		Responce responce = new Responce();
 		try {
 			if (noteService.updateNote(note, id)) {
