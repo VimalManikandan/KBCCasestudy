@@ -51,7 +51,7 @@ public class NoteController {
 	private NoteService noteService;
 
 	public NoteController(NoteService noteService) {
-		this.noteService=noteService;
+		this.noteService = noteService;
 	}
 
 	/*
@@ -67,44 +67,35 @@ public class NoteController {
 	 * 
 	 * This handler method should map to the URL "/note" using HTTP POST method
 	 */
-	
-	
-	
+
 	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<Responce> createNote(@RequestBody Note note,HttpServletRequest request) throws Exception {
-		
+	public ResponseEntity<Responce> createNote(@RequestBody Note note, HttpServletRequest request) throws Exception {
+
 		List<String> usersList = (List<String>) request.getSession().getAttribute("Logged_users");
 		int rslt = (usersList != null) ? Collections.frequency(usersList, note.getCreatedBy()) : 0;
 		if (rslt == 0) {
 			throw new UserUnAuthorized("Un Authorized");
 		}
-			
+
 		Responce responce = new Responce();
 		try {
-			if(noteService.createNote(note)) {
+			if (noteService.createNote(note)) {
 				responce.setMessage("CREATED");
 				responce.setStatus(HttpStatus.CREATED.value());
-			}
-			else {
+			} else {
 				responce.setMessage("FAILED");
-				responce.setStatus(HttpStatus.BAD_REQUEST.value());				
+				responce.setStatus(HttpStatus.BAD_REQUEST.value());
 			}
 
-		}
-		catch(CategoryNotFoundException e) {
+		} catch (CategoryNotFoundException e) {
 			throw e;
-		}
-		catch(ReminderNotFoundException e ) {
+		} catch (ReminderNotFoundException e) {
 			throw e;
-		}
-		catch(NotAlreadyExistsException e) {
+		} catch (NotAlreadyExistsException e) {
 			throw e;
 		}
 		return new ResponseEntity<Responce>(responce, HttpStatus.OK);
 	}
-	
-	
-	
 
 	/*
 	 * Define a handler method which will delete a note from a database.
@@ -131,13 +122,12 @@ public class NoteController {
 			if (rslt == 0) {
 				throw new UserUnAuthorized("UnAuthorized");
 			}
-			if(noteService.deleteNote(id)) {
+			if (noteService.deleteNote(id)) {
 				responce.setMessage("OK");
 				responce.setStatus(HttpStatus.OK.value());
-			}
-			else {				
-					responce.setMessage("FAILED");
-					responce.setStatus(HttpStatus.BAD_REQUEST.value());
+			} else {
+				responce.setMessage("FAILED");
+				responce.setStatus(HttpStatus.BAD_REQUEST.value());
 			}
 
 		} catch (NoteNotFoundException e) {
@@ -146,7 +136,6 @@ public class NoteController {
 		return new ResponseEntity<Responce>(responce, HttpStatus.OK);
 
 	}
-	
 
 	/*
 	 * Define a handler method which will update a specific note by reading the
@@ -162,18 +151,24 @@ public class NoteController {
 	 * 
 	 * This handler method should map to the URL "/note/{id}" using HTTP PUT method.
 	 */
-	
+
 	@RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<Responce> updateNote(@RequestBody Note note, @PathVariable int id,
-			HttpServletRequest request) throws Exception {
+	public ResponseEntity<Responce> updateNote(@RequestBody Note note, @PathVariable int id, HttpServletRequest request)
+			throws Exception {
 
 		List<String> usersList = (List<String>) request.getSession().getAttribute("Logged_users");
-		int rslt = (usersList != null) ? Collections.frequency(usersList,noteService.getNoteById(id).getCreatedBy() ) : 0;
+		int rslt = (usersList != null) ? Collections.frequency(usersList, noteService.getNoteById(id).getCreatedBy())
+				: 0;
 		if (rslt == 0) {
 			throw new UserUnAuthorized("UnAuthorized");
 		}
-		
-		
+
+		Category category = new Category(21, "Testing", "All about testing spring application", "v28", new Date(),
+				null);
+		Reminder reminder = new Reminder(21, "Email", "Email reminder", "EmailType", "v28", new Date(), null);
+		note = new Note(21, "Testing-1", "Just Test", "Active", "abc", new Date(), category, reminder,
+				"v28");
+
 		Responce responce = new Responce();
 		try {
 			if (noteService.updateNote(note, id)) {
@@ -185,13 +180,18 @@ public class NoteController {
 				responce.setStatus(HttpStatus.OK.value());
 				return new ResponseEntity<Responce>(responce, HttpStatus.BAD_REQUEST);
 			}
+		} catch (CategoryNotFoundException e) {
+			throw e;
+		} catch (ReminderNotFoundException e) {
+			throw e;
 		} catch (NoteNotFoundException e) {
 			throw e;
+		} catch (Exception e) {
+			throw e;
 		}
-		
+
 	}
-	
-	
+
 	/*
 	 * Define a handler method which will get us the notes by a userId.
 	 * 
@@ -203,7 +203,7 @@ public class NoteController {
 	 * 
 	 * This handler method should map to the URL "/note" using HTTP GET method
 	 */
-	
+
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<List<Note>> getAllNoteByUserId(@RequestParam String id, HttpSession session)
 			throws UserUnAuthorized, UserNotFoundException {
@@ -213,12 +213,11 @@ public class NoteController {
 		if (rslt == 0) {
 			throw new UserUnAuthorized("Un Authorized");
 		}
-		List<Note> notes=null;
-		notes= noteService.getAllNotesByUserId(id);
+		List<Note> notes = null;
+		notes = noteService.getAllNotesByUserId(id);
 		responce.setMessage("OK");
 		responce.setStatus(HttpStatus.OK.value());
 		return new ResponseEntity<List<Note>>(notes, HttpStatus.OK);
 	}
-	
 
 }
