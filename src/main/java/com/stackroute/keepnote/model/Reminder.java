@@ -58,7 +58,7 @@ public class Reminder {
 	private Date reminderCreationDate;
 	
 	@JsonIgnore
-	@OneToMany(mappedBy = "reminder",fetch = FetchType.EAGER,//cascade=CascadeType.ALL
+	@OneToMany(mappedBy = "reminder",fetch = FetchType.LAZY,//cascade=CascadeType.ALL
 			cascade= {CascadeType.PERSIST, CascadeType.MERGE,
 					 CascadeType.DETACH, CascadeType.REFRESH})
 	private List<Note> notes;

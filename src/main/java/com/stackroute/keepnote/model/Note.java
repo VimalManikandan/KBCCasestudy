@@ -64,13 +64,13 @@ public class Note {
 	@JsonIgnore	
 	
 	@ManyToOne(cascade= {//CascadeType.PERSIST, 
-			CascadeType.MERGE,	CascadeType.DETACH, CascadeType.REFRESH},fetch = FetchType.EAGER)	 
+			CascadeType.MERGE,	CascadeType.DETACH, CascadeType.REFRESH},fetch = FetchType.LAZY)	 
 	@JoinColumn(name="categoryId")
 	private Category category;
 	
 	@JsonIgnore	
 	@ManyToOne(cascade= {//CascadeType.PERSIST, 
-	CascadeType.MERGE,CascadeType.DETACH, CascadeType.REFRESH},fetch = FetchType.EAGER)
+	CascadeType.MERGE,CascadeType.DETACH, CascadeType.REFRESH},fetch = FetchType.LAZY)
 	@JoinColumn(name="reminderId")
 	private Reminder reminder;
 	
